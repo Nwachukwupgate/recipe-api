@@ -1,18 +1,20 @@
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-}
-
 const express = require('express');
 const mongoose = require('mongoose');
-const multer = require('multer');
 const cors = require('cors');
 const recipesRouter = require('./routes/recipes');
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();  // Ensure this line is present
 
 const app = express();
+
 const PORT = process.env.PORT || 3001;
 
 // MongoDB connection
 const mongoURI = process.env.MONGODB_URI;
+
+if (!mongoURI) {
+  throw new Error('MONGODB_URI environment variable is not defined');
+}
 
 mongoose.connect(mongoURI, {
   useNewUrlParser: true,
@@ -21,6 +23,13 @@ mongoose.connect(mongoURI, {
   console.log('Connected to MongoDB Atlas');
 }).catch((err) => {
   console.error('Error connecting to MongoDB Atlas', err);
+});
+
+// Cloudinary configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 // Middleware
